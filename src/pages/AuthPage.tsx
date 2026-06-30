@@ -5,6 +5,7 @@ import { PawPrint } from 'lucide-react'
 export default function AuthPage() {
   const { signIn, signUp } = useAuth()
   const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -21,7 +22,7 @@ export default function AuthPage() {
       const { error } = await signIn(email, password)
       if (error) setError('Email o password non corretti.')
     } else {
-      const { error } = await signUp(email, password)
+      const { error } = await signUp(email, password, fullName)
       if (error) setError('Registrazione fallita. Prova con un\'altra email.')
       else setSuccess('Controlla la tua email per confermare l\'account.')
     }
@@ -55,6 +56,19 @@ export default function AuthPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
+            {mode === 'signup' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <input
+                  className="input"
+                  type="text"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  required
+                  placeholder="Il tuo nome"
+                />
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
