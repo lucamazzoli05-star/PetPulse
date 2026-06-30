@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { PawPrint } from 'lucide-react'
+import { HeartPulse } from 'lucide-react'
 
 export default function AuthPage() {
   const { signIn, signUp } = useAuth()
@@ -34,7 +34,7 @@ export default function AuthPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center bg-primary-600 rounded-2xl p-3 mb-3">
-            <PawPrint size={32} className="text-white" />
+            <HeartPulse size={32} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">PetPulse</h1>
           <p className="text-gray-500 text-sm mt-1">La salute del tuo animale, sempre con te</p>
