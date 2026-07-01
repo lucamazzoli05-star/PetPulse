@@ -5,6 +5,7 @@ import AuthPage from './pages/AuthPage'
 import HomePage from './pages/HomePage'
 import NewPetPage from './pages/NewPetPage'
 import PetPage from './pages/PetPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import Spinner from './components/ui/Spinner'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const { user, loading } = useAuth()
+
+  // Intercept Supabase recovery link (type=recovery in URL hash)
+  if (window.location.hash.includes('type=recovery')) {
+    return <ResetPasswordPage />
+  }
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <Spinner size="lg" />

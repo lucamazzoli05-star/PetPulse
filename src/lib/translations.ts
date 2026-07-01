@@ -16,6 +16,16 @@ export const translations = {
   saving: { IT: 'Salvataggio...', EN: 'Saving...' },
   emergency: { IT: 'Emergenza', EN: 'Emergency' },
 
+  // Reset password page
+  resetPasswordTitle: { IT: 'Nuova password', EN: 'New password' },
+  resetPasswordDesc: { IT: 'Scegli una nuova password per il tuo account.', EN: 'Choose a new password for your account.' },
+  resetPasswordNew: { IT: 'Nuova password', EN: 'New password' },
+  resetPasswordConfirm: { IT: 'Conferma password', EN: 'Confirm password' },
+  resetPasswordSave: { IT: 'Salva password', EN: 'Save password' },
+  resetPasswordMismatch: { IT: 'Le password non coincidono.', EN: 'Passwords do not match.' },
+  resetPasswordError: { IT: 'Errore durante il salvataggio. Riprova.', EN: 'Error saving password. Please try again.' },
+  resetPasswordDone: { IT: 'Password aggiornata! Reindirizzamento in corso...', EN: 'Password updated! Redirecting...' },
+
   // Auth
   authName: { IT: 'Nome', EN: 'Name' },
   authNamePlaceholder: { IT: 'Il tuo nome', EN: 'Your name' },

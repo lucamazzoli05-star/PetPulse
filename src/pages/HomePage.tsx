@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PawPrint, Plus, ChevronRight, Stethoscope, Info, LogOut, TriangleAlert } from 'lucide-react'
+import { HeartPulse, Plus, ChevronRight, Stethoscope, Info, LogOut, TriangleAlert } from 'lucide-react'
 import { usePets } from '../hooks/usePets'
 import { useAuth } from '../context/AuthContext'
 import { useLang } from '../context/LanguageContext'
@@ -90,7 +90,7 @@ export default function HomePage() {
               className="w-11 h-11 rounded-xl flex items-center justify-center mb-3"
               style={{ backgroundColor: '#E1F5EE' }}
             >
-              <PawPrint size={20} style={{ color: '#0F6E56' }} />
+              <HeartPulse size={20} style={{ color: '#0F6E56' }} />
             </div>
             <p className="font-semibold text-gray-900 text-sm">{t('homeMyPets')}</p>
             <p className="text-xs text-gray-400 mt-0.5">{t('homeOwner')}</p>
@@ -121,7 +121,7 @@ export default function HomePage() {
           <div className="card mt-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <PawPrint size={18} className="text-primary-600" />
+                <HeartPulse size={18} className="text-primary-600" />
                 <h2 className="font-semibold text-gray-900">{t('homeMyPets')}</h2>
               </div>
               <button
