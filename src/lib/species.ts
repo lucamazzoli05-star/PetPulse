@@ -133,3 +133,35 @@ export const EXPENSE_CATEGORIES = [
   { value: 'medicine', label: 'Farmaci' },
   { value: 'other', label: 'Altro' },
 ] as const
+
+// Categorie disponibili per gruppo di specie
+const CAT_VET = 'vet'
+const CAT_FOOD = 'food'
+const CAT_GROOMING = 'grooming'
+const CAT_TOYS = 'toys'
+const CAT_MEDICINE = 'medicine'
+const CAT_OTHER = 'other'
+
+const ALL_CATS = [CAT_VET, CAT_FOOD, CAT_GROOMING, CAT_TOYS, CAT_MEDICINE, CAT_OTHER]
+const NO_GROOMING = [CAT_VET, CAT_FOOD, CAT_TOYS, CAT_MEDICINE, CAT_OTHER]
+const BASIC = [CAT_VET, CAT_FOOD, CAT_MEDICINE, CAT_OTHER]
+
+export const EXPENSE_CATEGORIES_BY_SPECIES: Record<string, string[]> = {
+  'Cane': ALL_CATS,
+  'Gatto': ALL_CATS,
+  'Coniglio': NO_GROOMING,
+  'Criceto': BASIC,
+  'Topo': BASIC,
+  'Ratto': BASIC,
+  'Cavia': NO_GROOMING,
+  'Furretto': NO_GROOMING,
+  'Pappagallo': BASIC,
+  'Canarino': BASIC,
+  'Tartaruga': BASIC,
+  'Serpente': BASIC,
+  'Iguana': BASIC,
+  'Pesce': BASIC,
+  'Cavallo': ALL_CATS,
+  'Capra': BASIC,
+  'Pecora': BASIC,
+}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus, Trash2, TrendingUp } from 'lucide-react'
 import { useExpenses } from '../../hooks/usePetData'
-import { EXPENSE_CATEGORIES } from '../../lib/species'
+import { EXPENSE_CATEGORIES, EXPENSE_CATEGORIES_BY_SPECIES } from '../../lib/species'
 import { type ExpenseCategory } from '../../types'
 import Modal from '../ui/Modal'
 import EmptyState from '../ui/EmptyState'
@@ -14,7 +14,9 @@ const CATEGORY_EMOJI: Record<ExpenseCategory, string> = {
   vet: '🩺', food: '🍖', grooming: '✂️', toys: '🧸', medicine: '💊', other: '📦',
 }
 
-export default function ExpensesSection({ petId }: { petId: string }) {
+export default function ExpensesSection({ petId, species }: { petId: string; species: string }) {
+  const allowedCats = EXPENSE_CATEGORIES_BY_SPECIES[species] ?? EXPENSE_CATEGORIES.map(c => c.value)
+  const visibleCategories = EXPENSE_CATEGORIES.filter(c => allowedCats.includes(c.value))
   const { expenses, loading, add, remove } = useExpenses(petId)
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({ date: '', amount: '', category: 'vet' as ExpenseCategory, notes: '' })
@@ -89,7 +91,7 @@ export default function ExpensesSection({ petId }: { petId: string }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
               <div className="grid grid-cols-3 gap-1.5">
-                {EXPENSE_CATEGORIES.map(c => (
+                {visibleCategories.map(c => (
                   <button
                     key={c.value}
                     onClick={() => setForm(f => ({ ...f, category: c.value }))}

@@ -129,7 +129,7 @@ export default function PetPage() {
       <div className="max-w-lg mx-auto px-4 pt-4">
         {/* Active section content */}
         {activeTab === 'vaccines' && <VaccinesSection petId={pet.id} />}
-        {activeTab === 'expenses' && <ExpensesSection petId={pet.id} />}
+        {activeTab === 'expenses' && <ExpensesSection petId={pet.id} species={pet.species} />}
         {activeTab === 'weight' && <WeightSection petId={pet.id} />}
         {activeTab === 'diary' && <DiarySection petId={pet.id} />}
 

@@ -22,7 +22,7 @@ export default function HomePage() {
   const { pets, loading } = usePets()
   const { user, signOut } = useAuth()
   const [profile, setProfile] = useState<'owner' | null>(null)
-  const [infoSeen, setInfoSeen] = useState(false)
+  const [infoSeen, setInfoSeen] = useState(() => localStorage.getItem('profileInfoSeen') === '1')
   const [showConfirmed, setShowConfirmed] = useState(false)
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function HomePage() {
         {/* Scelta profilo */}
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => { setProfile('owner'); setInfoSeen(true) }}
+            onClick={() => { setProfile('owner'); setInfoSeen(true); localStorage.setItem('profileInfoSeen', '1') }}
             className={`text-left p-4 rounded-2xl border bg-white transition-all ${
               profile === 'owner' ? 'border-primary-400 ring-2 ring-primary-100' : 'border-gray-100'
             }`}
