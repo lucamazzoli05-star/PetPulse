@@ -6,6 +6,7 @@ import { type Pet, type PetSection } from '../types'
 import { usePets } from '../hooks/usePets'
 import { useLang } from '../context/LanguageContext'
 import { type TranslationKey } from '../lib/translations'
+import { translateSpecies } from '../lib/species'
 import VaccinesSection from '../components/sections/VaccinesSection'
 import ExpensesSection from '../components/sections/ExpensesSection'
 import WeightSection from '../components/sections/WeightSection'
@@ -26,7 +27,7 @@ export default function PetPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { deletePet } = usePets()
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const [pet, setPet] = useState<Pet | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<PetSection | null>(null)
@@ -89,7 +90,7 @@ export default function PetPage() {
           <div className="flex-1 min-w-0">
             <h1 className="font-bold text-gray-900 text-lg truncate">{pet.name}</h1>
             <p className="text-xs text-gray-500 truncate">
-              {pet.species}{pet.breed ? ` · ${pet.breed}` : ''}{pet.birth_date ? ` · ${petAge(pet.birth_date, t)}` : ''}
+              {translateSpecies(pet.species, lang)}{pet.breed ? ` · ${pet.breed}` : ''}{pet.birth_date ? ` · ${petAge(pet.birth_date, t)}` : ''}
             </p>
           </div>
           <div className="flex items-center gap-1">

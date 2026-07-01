@@ -4,6 +4,19 @@ export const SPECIES_LIST = [
   'Serpente', 'Iguana', 'Pesce', 'Cavallo', 'Capra', 'Pecora',
 ]
 
+export const SPECIES_EN: Record<string, string> = {
+  'Cane': 'Dog', 'Gatto': 'Cat', 'Coniglio': 'Rabbit', 'Criceto': 'Hamster',
+  'Topo': 'Mouse', 'Ratto': 'Rat', 'Cavia': 'Guinea Pig', 'Furretto': 'Ferret',
+  'Pappagallo': 'Parrot', 'Canarino': 'Canary', 'Tartaruga': 'Tortoise',
+  'Serpente': 'Snake', 'Iguana': 'Iguana', 'Pesce': 'Fish',
+  'Cavallo': 'Horse', 'Capra': 'Goat', 'Pecora': 'Sheep',
+}
+
+export function translateSpecies(species: string, lang: string): string {
+  if (lang === 'EN') return SPECIES_EN[species] ?? species
+  return species
+}
+
 export const SPECIES_EMOJI: Record<string, string> = {
   'Cane': '🐶',
   'Gatto': '🐱',

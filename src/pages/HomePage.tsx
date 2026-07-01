@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { useLang } from '../context/LanguageContext'
 import Spinner from '../components/ui/Spinner'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
-import { SPECIES_EMOJI } from '../lib/species'
+import { SPECIES_EMOJI, translateSpecies } from '../lib/species'
 import { type TranslationKey } from '../lib/translations'
 
 function petAge(birthDate: string | null, t: (k: TranslationKey) => string): string {
@@ -23,7 +23,7 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { pets, loading } = usePets()
   const { user, signOut } = useAuth()
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const [profile, setProfile] = useState<'owner' | null>(null)
   const [infoSeen, setInfoSeen] = useState(() => localStorage.getItem('profileInfoSeen') === '1')
   const [showConfirmed, setShowConfirmed] = useState(false)
@@ -162,7 +162,7 @@ export default function HomePage() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900">{pet.name}</p>
                       <p className="text-sm text-gray-500 truncate">
-                        {pet.species}{pet.breed ? ` · ${pet.breed}` : ''}{pet.birth_date ? ` · ${petAge(pet.birth_date, t)}` : ''}
+                        {translateSpecies(pet.species, lang)}{pet.breed ? ` · ${pet.breed}` : ''}{pet.birth_date ? ` · ${petAge(pet.birth_date, t)}` : ''}
                       </p>
                     </div>
                     <ChevronRight size={18} className="text-gray-300 flex-shrink-0" />

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Search, Check } from 'lucide-react'
-import { SPECIES_LIST, BREEDS_BY_SPECIES } from '../lib/species'
+import { SPECIES_LIST, BREEDS_BY_SPECIES, translateSpecies } from '../lib/species'
 import { usePets } from '../hooks/usePets'
 import { useLang } from '../context/LanguageContext'
 import { type PetSection } from '../types'
@@ -11,7 +11,7 @@ type Step = 'name' | 'species' | 'breed' | 'birth' | 'sections'
 export default function NewPetPage() {
   const navigate = useNavigate()
   const { addPet } = usePets()
-  const { t } = useLang()
+  const { t, lang } = useLang()
 
   const SECTIONS: { id: PetSection; label: string; emoji: string; desc: string }[] = [
     { id: 'vaccines', label: t('sectionVaccinesLabel'), emoji: '💉', desc: t('sectionVaccinesDesc') },
@@ -133,7 +133,7 @@ export default function NewPetPage() {
                     species === s ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-100 bg-white hover:bg-gray-50'
                   }`}
                 >
-                  {s}
+                  {translateSpecies(s, lang)}
                 </button>
               ))}
               {speciesSearch && !filteredSpecies.includes(speciesSearch) && (
