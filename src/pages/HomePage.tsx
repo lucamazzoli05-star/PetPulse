@@ -24,7 +24,9 @@ export default function HomePage() {
   const { pets, loading } = usePets()
   const { user, signOut } = useAuth()
   const { t, lang } = useLang()
-  const [profile, setProfile] = useState<'owner' | null>(null)
+  const [profile, setProfile] = useState<'owner' | null>(() =>
+    localStorage.getItem('selectedProfile') === 'owner' ? 'owner' : null
+  )
   const [infoSeen, setInfoSeen] = useState(() => localStorage.getItem('profileInfoSeen') === '1')
   const [showConfirmed, setShowConfirmed] = useState(false)
 
@@ -78,10 +80,10 @@ export default function HomePage() {
         <h1 className="text-[22px] font-medium text-gray-900">{t('homeGreeting')} {userName},</h1>
         <p className="text-[15px] text-gray-500 mt-0.5 mb-5">{t('homeSubtitle')}</p>
 
-        {/* Scelta profilo */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Scelta profilo — mostrata solo se non ancora scelta */}
+        {!profile && <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => { setProfile('owner'); setInfoSeen(true); localStorage.setItem('profileInfoSeen', '1') }}
+            onClick={() => { setProfile('owner'); setInfoSeen(true); localStorage.setItem('profileInfoSeen', '1'); localStorage.setItem('selectedProfile', 'owner') }}
             className={`text-left p-4 rounded-2xl border bg-white transition-all ${
               profile === 'owner' ? 'border-primary-400 ring-2 ring-primary-100' : 'border-gray-100'
             }`}
@@ -106,10 +108,10 @@ export default function HomePage() {
             <p className="font-semibold text-gray-900 text-sm">{t('homeVet')}</p>
             <p className="text-xs text-gray-400 mt-0.5">{t('homeVetSoon')}</p>
           </div>
-        </div>
+        </div>}
 
         {/* Nota informativa */}
-        {!infoSeen && (
+        {!infoSeen && !profile && (
           <div className="flex items-start gap-2 bg-white border border-gray-100 rounded-xl p-3 mt-4">
             <Info size={15} className="text-gray-400 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-gray-500">{t('homeInfoNote')}</p>
