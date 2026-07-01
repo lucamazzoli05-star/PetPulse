@@ -3,24 +3,27 @@ import { useNavigate } from 'react-router-dom'
 import { PawPrint, Plus, ChevronRight, Stethoscope, Info, LogOut, TriangleAlert } from 'lucide-react'
 import { usePets } from '../hooks/usePets'
 import { useAuth } from '../context/AuthContext'
+import { useLang } from '../context/LanguageContext'
 import Spinner from '../components/ui/Spinner'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
 import { SPECIES_EMOJI } from '../lib/species'
+import { type TranslationKey } from '../lib/translations'
 
-function petAge(birthDate: string | null): string {
+function petAge(birthDate: string | null, t: (k: TranslationKey) => string): string {
   if (!birthDate) return ''
   const diff = Date.now() - new Date(birthDate).getTime()
   const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25))
   const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30.44))
-  if (years >= 1) return `${years} ann${years === 1 ? 'o' : 'i'}`
-  if (months >= 1) return `${months} mes${months === 1 ? 'e' : 'i'}`
-  return '< 1 mese'
+  if (years >= 1) return `${years} ${years === 1 ? t('ageYearSingular') : t('ageYearPlural')}`
+  if (months >= 1) return `${months} ${months === 1 ? t('ageMonthSingular') : t('ageMonthPlural')}`
+  return t('ageLessThanMonth')
 }
 
 export default function HomePage() {
   const navigate = useNavigate()
   const { pets, loading } = usePets()
   const { user, signOut } = useAuth()
+  const { t } = useLang()
   const [profile, setProfile] = useState<'owner' | null>(null)
   const [infoSeen, setInfoSeen] = useState(() => localStorage.getItem('profileInfoSeen') === '1')
   const [showConfirmed, setShowConfirmed] = useState(false)
@@ -53,7 +56,7 @@ export default function HomePage() {
               style={{ backgroundColor: '#FCEBEB', color: '#B42318', border: '1px solid #F3C6C4' }}
             >
               <TriangleAlert size={15} />
-              Emergenza
+              {t('emergency')}
             </button>
             <button onClick={signOut} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
               <LogOut size={16} />
@@ -65,15 +68,15 @@ export default function HomePage() {
       {showConfirmed && (
         <div className="bg-green-50 border-b border-green-200 px-4 py-3">
           <div className="max-w-lg mx-auto flex items-center justify-between">
-            <p className="text-sm text-green-700 font-medium">✅ Registrazione confermata! Benvenuto su PetPulse.</p>
+            <p className="text-sm text-green-700 font-medium">✅ {t('homeConfirmed')}</p>
             <button onClick={() => setShowConfirmed(false)} className="text-green-500 text-lg leading-none ml-3">×</button>
           </div>
         </div>
       )}
 
       <div className="max-w-lg mx-auto px-4 pt-6">
-        <h1 className="text-[22px] font-medium text-gray-900">Ciao {userName},</h1>
-        <p className="text-[15px] text-gray-500 mt-0.5 mb-5">come vuoi usare l'app?</p>
+        <h1 className="text-[22px] font-medium text-gray-900">{t('homeGreeting')} {userName},</h1>
+        <p className="text-[15px] text-gray-500 mt-0.5 mb-5">{t('homeSubtitle')}</p>
 
         {/* Scelta profilo */}
         <div className="grid grid-cols-2 gap-3">
@@ -89,8 +92,8 @@ export default function HomePage() {
             >
               <PawPrint size={20} style={{ color: '#0F6E56' }} />
             </div>
-            <p className="font-semibold text-gray-900 text-sm">I miei animali</p>
-            <p className="text-xs text-gray-400 mt-0.5">Proprietario di animali</p>
+            <p className="font-semibold text-gray-900 text-sm">{t('homeMyPets')}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{t('homeOwner')}</p>
           </button>
 
           <div className="text-left p-4 rounded-2xl border border-gray-100 bg-white opacity-55 cursor-not-allowed">
@@ -100,34 +103,32 @@ export default function HomePage() {
             >
               <Stethoscope size={20} style={{ color: '#185FA5' }} />
             </div>
-            <p className="font-semibold text-gray-900 text-sm">Veterinario</p>
-            <p className="text-xs text-gray-400 mt-0.5">Presto disponibile</p>
+            <p className="font-semibold text-gray-900 text-sm">{t('homeVet')}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{t('homeVetSoon')}</p>
           </div>
         </div>
 
-        {/* Nota informativa — mostrata solo finché non si seleziona un profilo */}
+        {/* Nota informativa */}
         {!infoSeen && (
           <div className="flex items-start gap-2 bg-white border border-gray-100 rounded-xl p-3 mt-4">
             <Info size={15} className="text-gray-400 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-gray-500">
-              Tocca un riquadro per iniziare. Puoi cambiare profilo in qualsiasi momento.
-            </p>
+            <p className="text-xs text-gray-500">{t('homeInfoNote')}</p>
           </div>
         )}
 
-        {/* Lista animali (mostrata quando il profilo "owner" è selezionato) */}
+        {/* Lista animali */}
         {profile === 'owner' && (
           <div className="card mt-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <PawPrint size={18} className="text-primary-600" />
-                <h2 className="font-semibold text-gray-900">I miei animali</h2>
+                <h2 className="font-semibold text-gray-900">{t('homeMyPets')}</h2>
               </div>
               <button
                 onClick={() => navigate('/new-pet')}
                 className="flex items-center gap-1 text-sm text-primary-600 font-medium hover:text-primary-700"
               >
-                <Plus size={16} /> Aggiungi
+                <Plus size={16} /> {t('add')}
               </button>
             </div>
 
@@ -138,10 +139,10 @@ export default function HomePage() {
             ) : pets.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-4xl mb-2">🐾</div>
-                <p className="text-gray-600 font-medium">Nessun animale ancora</p>
-                <p className="text-sm text-gray-400 mt-1 mb-4">Aggiungi il tuo primo animale per iniziare</p>
+                <p className="text-gray-600 font-medium">{t('homeNoPets')}</p>
+                <p className="text-sm text-gray-400 mt-1 mb-4">{t('homeNoPetsDesc')}</p>
                 <button onClick={() => navigate('/new-pet')} className="btn-primary text-sm">
-                  Aggiungi animale
+                  {t('homeAddPet')}
                 </button>
               </div>
             ) : (
@@ -161,7 +162,7 @@ export default function HomePage() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900">{pet.name}</p>
                       <p className="text-sm text-gray-500 truncate">
-                        {pet.species}{pet.breed ? ` · ${pet.breed}` : ''}{pet.birth_date ? ` · ${petAge(pet.birth_date)}` : ''}
+                        {pet.species}{pet.breed ? ` · ${pet.breed}` : ''}{pet.birth_date ? ` · ${petAge(pet.birth_date, t)}` : ''}
                       </p>
                     </div>
                     <ChevronRight size={18} className="text-gray-300 flex-shrink-0" />

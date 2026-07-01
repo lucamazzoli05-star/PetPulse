@@ -4,37 +4,40 @@ import { ChevronLeft, Plus, Trash2, MapPin } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { type Pet, type PetSection } from '../types'
 import { usePets } from '../hooks/usePets'
+import { useLang } from '../context/LanguageContext'
+import { type TranslationKey } from '../lib/translations'
 import VaccinesSection from '../components/sections/VaccinesSection'
 import ExpensesSection from '../components/sections/ExpensesSection'
 import WeightSection from '../components/sections/WeightSection'
 import DiarySection from '../components/sections/DiarySection'
 import Spinner from '../components/ui/Spinner'
 
-const SECTIONS_META: { id: PetSection; label: string; emoji: string }[] = [
-  { id: 'vaccines', label: 'Vaccini & Scadenze', emoji: '💉' },
-  { id: 'expenses', label: 'Spese', emoji: '💰' },
-  { id: 'weight', label: 'Peso', emoji: '⚖️' },
-  { id: 'diary', label: 'Diario', emoji: '📔' },
-]
-
-function petAge(birthDate: string | null): string {
+function petAge(birthDate: string | null, t: (k: TranslationKey) => string): string {
   if (!birthDate) return ''
   const diff = Date.now() - new Date(birthDate).getTime()
   const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25))
   const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30.44))
-  if (years >= 1) return `${years} ann${years === 1 ? 'o' : 'i'}`
-  if (months >= 1) return `${months} mes${months === 1 ? 'e' : 'i'}`
-  return '< 1 mese'
+  if (years >= 1) return `${years} ${years === 1 ? t('ageYearSingular') : t('ageYearPlural')}`
+  if (months >= 1) return `${months} ${months === 1 ? t('ageMonthSingular') : t('ageMonthPlural')}`
+  return t('ageLessThanMonth')
 }
 
 export default function PetPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { deletePet } = usePets()
+  const { t } = useLang()
   const [pet, setPet] = useState<Pet | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<PetSection | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  const SECTIONS_META: { id: PetSection; label: string; emoji: string }[] = [
+    { id: 'vaccines', label: t('sectionVaccinesLabel'), emoji: '💉' },
+    { id: 'expenses', label: t('sectionExpensesLabel'), emoji: '💰' },
+    { id: 'weight', label: t('sectionWeightLabel'), emoji: '⚖️' },
+    { id: 'diary', label: t('sectionDiaryLabel'), emoji: '📔' },
+  ]
 
   useEffect(() => {
     if (!id) return
@@ -68,7 +71,7 @@ export default function PetPage() {
 
   if (!pet) return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-gray-500">Animale non trovato</p>
+      <p className="text-gray-500">{t('petNotFound')}</p>
     </div>
   )
 
@@ -86,14 +89,13 @@ export default function PetPage() {
           <div className="flex-1 min-w-0">
             <h1 className="font-bold text-gray-900 text-lg truncate">{pet.name}</h1>
             <p className="text-xs text-gray-500 truncate">
-              {pet.species}{pet.breed ? ` · ${pet.breed}` : ''}{pet.birth_date ? ` · ${petAge(pet.birth_date)}` : ''}
+              {pet.species}{pet.breed ? ` · ${pet.breed}` : ''}{pet.birth_date ? ` · ${petAge(pet.birth_date, t)}` : ''}
             </p>
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={() => window.open('https://maps.google.com/?q=veterinario+di+guardia+vicino+a+me', '_blank')}
               className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-500"
-              title="Emergenza"
             >
               <MapPin size={18} />
             </button>
@@ -106,7 +108,6 @@ export default function PetPage() {
           </div>
         </div>
 
-        {/* Tabs */}
         {activeSections.length > 0 && (
           <div className="max-w-lg mx-auto px-4 flex gap-1 overflow-x-auto pb-px">
             {activeSections.map(s => (
@@ -127,27 +128,24 @@ export default function PetPage() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-4">
-        {/* Active section content */}
         {activeTab === 'vaccines' && <VaccinesSection petId={pet.id} />}
         {activeTab === 'expenses' && <ExpensesSection petId={pet.id} species={pet.species} />}
         {activeTab === 'weight' && <WeightSection petId={pet.id} />}
         {activeTab === 'diary' && <DiarySection petId={pet.id} />}
 
-        {/* No sections activated */}
         {activeSections.length === 0 && (
           <div className="text-center py-12">
             <div className="text-4xl mb-3">📋</div>
-            <p className="font-medium text-gray-700">Nessuna sezione attiva</p>
-            <p className="text-sm text-gray-500 mt-1">Attiva una sezione qui sotto per iniziare</p>
+            <p className="font-medium text-gray-700">{t('petNoSections')}</p>
+            <p className="text-sm text-gray-500 mt-1">{t('petNoSectionsDesc')}</p>
           </div>
         )}
 
-        {/* Activate inactive sections */}
         {inactiveSections.length > 0 && (
           <div className="mt-6">
             <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2">
               <Plus size={12} className="inline mr-1" />
-              Attiva sezioni
+              {t('petActivateSections')}
             </p>
             <div className="grid grid-cols-2 gap-2">
               {inactiveSections.map(s => (
@@ -165,17 +163,16 @@ export default function PetPage() {
         )}
       </div>
 
-      {/* Delete confirm */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowDeleteConfirm(false)} />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-            <h2 className="font-bold text-gray-900 mb-2">Elimina {pet.name}?</h2>
-            <p className="text-sm text-gray-500 mb-5">Tutti i dati associati verranno eliminati. Questa azione non può essere annullata.</p>
+            <h2 className="font-bold text-gray-900 mb-2">{t('petDeleteTitle')} {pet.name}?</h2>
+            <p className="text-sm text-gray-500 mb-5">{t('petDeleteDesc')}</p>
             <div className="flex gap-2">
-              <button onClick={() => setShowDeleteConfirm(false)} className="btn-secondary flex-1">Annulla</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="btn-secondary flex-1">{t('cancel')}</button>
               <button onClick={handleDelete} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl font-medium transition-colors">
-                Elimina
+                {t('delete')}
               </button>
             </div>
           </div>

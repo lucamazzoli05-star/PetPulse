@@ -1,32 +1,34 @@
 import { useState } from 'react'
 import { Plus, Trash2, Bell, AlertCircle } from 'lucide-react'
 import { useVaccines } from '../../hooks/usePetData'
+import { useLang } from '../../context/LanguageContext'
 import Modal from '../ui/Modal'
 import EmptyState from '../ui/EmptyState'
-
-const REMINDER_PRESETS = [
-  { label: '1 giorno prima', value: 1 },
-  { label: '3 giorni prima', value: 3 },
-  { label: '7 giorni prima', value: 7 },
-  { label: '14 giorni prima', value: 14 },
-  { label: '30 giorni prima', value: 30 },
-]
 
 function daysUntil(dateStr: string): number {
   const diff = new Date(dateStr).getTime() - Date.now()
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })
+function formatDate(d: string, lang: string) {
+  return new Date(d).toLocaleDateString(lang === 'EN' ? 'en-GB' : 'it-IT', { day: '2-digit', month: 'long', year: 'numeric' })
 }
 
 export default function VaccinesSection({ petId }: { petId: string }) {
   const { vaccines, loading, add, remove } = useVaccines(petId)
+  const { t, lang } = useLang()
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({
     name: '', date: '', expiry_date: '', reminder_days: 7, notes: '', useCustomReminder: false, customReminder: '',
   })
+
+  const REMINDER_PRESETS = [
+    { label: t('vaccinesPreset1'), value: 1 },
+    { label: t('vaccinesPreset3'), value: 3 },
+    { label: t('vaccinesPreset7'), value: 7 },
+    { label: t('vaccinesPreset14'), value: 14 },
+    { label: t('vaccinesPreset30'), value: 30 },
+  ]
 
   function resetForm() {
     setForm({ name: '', date: '', expiry_date: '', reminder_days: 7, notes: '', useCustomReminder: false, customReminder: '' })
@@ -45,22 +47,22 @@ export default function VaccinesSection({ petId }: { petId: string }) {
     resetForm()
   }
 
-  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">Caricamento...</div>
+  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">{t('loading')}</div>
 
   return (
     <div>
       <div className="flex justify-end mb-3">
         <button onClick={() => setShowModal(true)} className="btn-primary text-sm flex items-center gap-1">
-          <Plus size={15} /> Aggiungi
+          <Plus size={15} /> {t('add')}
         </button>
       </div>
 
       {vaccines.length === 0 ? (
         <EmptyState
           icon={Bell}
-          title="Nessun vaccino registrato"
-          description="Aggiungi vaccini e scadenze per ricevere promemoria"
-          action={{ label: 'Aggiungi vaccino', onClick: () => setShowModal(true) }}
+          title={t('vaccinesEmpty')}
+          description={t('vaccinesEmptyDesc')}
+          action={{ label: t('vaccinesAddBtn'), onClick: () => setShowModal(true) }}
         />
       ) : (
         <div className="space-y-2">
@@ -81,21 +83,21 @@ export default function VaccinesSection({ petId }: { petId: string }) {
                         <AlertCircle size={14} className={isExpired ? 'text-red-500' : 'text-amber-500'} />
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">Somministrato: {formatDate(v.date)}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{t('vaccinesAdministered')} {formatDate(v.date, lang)}</p>
                     {v.expiry_date && (
                       <p className={`text-xs mt-0.5 font-medium ${
                         isExpired ? 'text-red-600' : isExpiring ? 'text-amber-600' : 'text-gray-500'
                       }`}>
                         {isExpired
-                          ? `Scaduto ${Math.abs(expDays!)} giorn${Math.abs(expDays!) === 1 ? 'o' : 'i'} fa`
+                          ? `${t('vaccinesExpired')} ${Math.abs(expDays!)} ${Math.abs(expDays!) === 1 ? t('vaccinesExpiredDayAgo') : t('vaccinesExpiredDaysAgo')}`
                           : isExpiring
-                          ? `Scade tra ${expDays} giorn${expDays === 1 ? 'o' : 'i'}`
-                          : `Scadenza: ${formatDate(v.expiry_date)}`}
+                          ? `${t('vaccinesExpiresIn')} ${expDays} ${expDays === 1 ? t('vaccinesDayLeft') : t('vaccinesDaysLeft')}`
+                          : `${t('vaccinesExpiry')} ${formatDate(v.expiry_date, lang)}`}
                       </p>
                     )}
                     <p className="text-xs text-gray-400 mt-0.5">
                       <Bell size={10} className="inline mr-0.5" />
-                      Promemoria {v.reminder_days} giorn{v.reminder_days === 1 ? 'o' : 'i'} prima
+                      {t('vaccinesReminder')} {v.reminder_days} {v.reminder_days === 1 ? t('vaccinesDayBefore') : t('vaccinesDaysBefore')}
                     </p>
                   </div>
                   <button onClick={() => remove(v.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 flex-shrink-0">
@@ -110,22 +112,22 @@ export default function VaccinesSection({ petId }: { petId: string }) {
       )}
 
       {showModal && (
-        <Modal title="Aggiungi vaccino / scadenza" onClose={() => { setShowModal(false); resetForm() }}>
+        <Modal title={t('vaccinesModalTitle')} onClose={() => { setShowModal(false); resetForm() }}>
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
-              <input className="input" placeholder="Es. Antirabbica, Visita annuale..." value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('vaccinesName')}</label>
+              <input className="input" placeholder={t('vaccinesNamePlaceholder')} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data somministrazione *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('vaccinesDateAdmin')}</label>
               <input className="input" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data scadenza (opzionale)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('vaccinesDateExpiry')}</label>
               <input className="input" type="date" value={form.expiry_date} onChange={e => setForm(f => ({ ...f, expiry_date: e.target.value }))} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Promemoria</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('vaccinesReminderLabel')}</label>
               <div className="grid grid-cols-3 gap-1.5 mb-2">
                 {REMINDER_PRESETS.map(p => (
                   <button
@@ -148,7 +150,7 @@ export default function VaccinesSection({ petId }: { petId: string }) {
                       : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  Personalizzato
+                  {t('vaccinesCustom')}
                 </button>
               </div>
               {form.useCustomReminder && (
@@ -158,24 +160,24 @@ export default function VaccinesSection({ petId }: { petId: string }) {
                     type="number"
                     min="1"
                     max="365"
-                    placeholder="es. 10"
+                    placeholder="10"
                     value={form.customReminder}
                     onChange={e => setForm(f => ({ ...f, customReminder: e.target.value }))}
                   />
-                  <span className="text-sm text-gray-500">giorni prima della scadenza</span>
+                  <span className="text-sm text-gray-500">{t('vaccinesDaysBeforeExpiry')}</span>
                 </div>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Note (opzionale)</label>
-              <textarea className="input resize-none" rows={2} placeholder="Annotazioni..." value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('notes')}</label>
+              <textarea className="input resize-none" rows={2} placeholder={t('vaccinesNotesPlaceholder')} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
             </div>
             <button
               onClick={handleAdd}
               disabled={!form.name || !form.date}
               className="btn-primary w-full disabled:opacity-40"
             >
-              Salva
+              {t('save')}
             </button>
           </div>
         </Modal>

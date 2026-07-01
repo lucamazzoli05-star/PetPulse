@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useLang } from '../context/LanguageContext'
 import { HeartPulse } from 'lucide-react'
 
 type Mode = 'login' | 'signup' | 'forgot'
 
 export default function AuthPage() {
   const { signIn, signUp, resetPassword } = useAuth()
+  const { t } = useLang()
   const [mode, setMode] = useState<Mode>('login')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -28,15 +30,15 @@ export default function AuthPage() {
 
     if (mode === 'login') {
       const { error } = await signIn(email, password)
-      if (error) setError('Email o password non corretti.')
+      if (error) setError(t('authLoginError'))
     } else if (mode === 'signup') {
       const { error } = await signUp(email, password, fullName)
-      if (error) setError('Registrazione fallita. Prova con un\'altra email.')
-      else setSuccess('Controlla la tua email per confermare l\'account.')
+      if (error) setError(t('authSignupError'))
+      else setSuccess(t('authSignupSuccess'))
     } else {
       const { error } = await resetPassword(email)
-      if (error) setError('Invio fallito. Controlla l\'email inserita.')
-      else setSuccess('Email inviata! Controlla la tua casella e clicca il link per reimpostare la password.')
+      if (error) setError(t('authForgotError'))
+      else setSuccess(t('authForgotSuccess'))
     }
     setLoading(false)
   }
@@ -49,7 +51,7 @@ export default function AuthPage() {
             <HeartPulse size={32} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">PetPulse</h1>
-          <p className="text-gray-500 text-sm mt-1">La salute del tuo animale, sempre con te</p>
+          <p className="text-gray-500 text-sm mt-1">{t('appTagline')}</p>
         </div>
 
         <div className="card">
@@ -63,7 +65,7 @@ export default function AuthPage() {
                     mode === m ? 'bg-white shadow text-gray-900' : 'text-gray-500'
                   }`}
                 >
-                  {m === 'login' ? 'Accedi' : 'Registrati'}
+                  {m === 'login' ? t('authLogin') : t('authSignup')}
                 </button>
               ))}
             </div>
@@ -71,27 +73,27 @@ export default function AuthPage() {
 
           {mode === 'forgot' && (
             <div className="mb-5">
-              <h2 className="font-semibold text-gray-900 mb-1">Recupera password</h2>
-              <p className="text-sm text-gray-500">Inserisci la tua email e ti mandiamo un link per reimpostare la password.</p>
+              <h2 className="font-semibold text-gray-900 mb-1">{t('authForgotTitle')}</h2>
+              <p className="text-sm text-gray-500">{t('authForgotDesc')}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-3">
             {mode === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('authName')}</label>
                 <input
                   className="input"
                   type="text"
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
                   required
-                  placeholder="Il tuo nome"
+                  placeholder={t('authNamePlaceholder')}
                 />
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('authEmail')}</label>
               <input
                 className="input"
                 type="email"
@@ -103,7 +105,7 @@ export default function AuthPage() {
             </div>
             {mode !== 'forgot' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('authPassword')}</label>
                 <input
                   className="input"
                   type="password"
@@ -125,12 +127,12 @@ export default function AuthPage() {
               className="btn-primary w-full mt-2 disabled:opacity-60"
             >
               {loading
-                ? 'Caricamento...'
+                ? t('loading')
                 : mode === 'login'
-                ? 'Accedi'
+                ? t('authLogin')
                 : mode === 'signup'
-                ? 'Crea account'
-                : 'Invia link di recupero'}
+                ? t('authCreateAccount')
+                : t('authForgotSend')}
             </button>
           </form>
 
@@ -139,7 +141,7 @@ export default function AuthPage() {
               onClick={() => switchMode('forgot')}
               className="w-full text-center text-sm text-primary-600 mt-3 hover:underline"
             >
-              Password dimenticata?
+              {t('authForgot')}
             </button>
           )}
 
@@ -148,7 +150,7 @@ export default function AuthPage() {
               onClick={() => switchMode('login')}
               className="w-full text-center text-sm text-gray-500 mt-3 hover:underline"
             >
-              Torna al login
+              {t('authBackToLogin')}
             </button>
           )}
         </div>

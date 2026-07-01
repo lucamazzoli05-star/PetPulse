@@ -1,10 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { Globe, ChevronDown, Check } from 'lucide-react'
 import { LANGUAGES } from '../../lib/languages'
+import { useLang } from '../../context/LanguageContext'
+import { type Lang } from '../../lib/translations'
+
+const SUPPORTED: string[] = ['IT', 'EN']
 
 export default function LanguageSwitcher() {
+  const { lang, setLang } = useLang()
   const [open, setOpen] = useState(false)
-  const [selected, setSelected] = useState('IT')
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -15,7 +19,7 @@ export default function LanguageSwitcher() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const current = LANGUAGES.find(l => l.code === selected)!
+  const current = LANGUAGES.find(l => l.code === lang)!
 
   return (
     <div className="relative" ref={ref}>
@@ -30,17 +34,26 @@ export default function LanguageSwitcher() {
 
       {open && (
         <div className="absolute left-0 top-full mt-1.5 w-48 bg-white rounded-xl border border-gray-100 shadow-lg py-1.5 z-50 max-h-72 overflow-y-auto">
-          {LANGUAGES.map(lang => (
-            <button
-              key={lang.code}
-              onClick={() => { setSelected(lang.code); setOpen(false) }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-gray-50 text-left"
-            >
-              <span className="text-base">{lang.flag}</span>
-              <span className="flex-1 text-gray-700">{lang.label}</span>
-              {selected === lang.code && <Check size={14} className="text-primary-600" />}
-            </button>
-          ))}
+          {LANGUAGES.map(l => {
+            const supported = SUPPORTED.includes(l.code)
+            return (
+              <button
+                key={l.code}
+                onClick={() => {
+                  if (supported) { setLang(l.code as Lang); setOpen(false) }
+                }}
+                disabled={!supported}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${
+                  supported ? 'hover:bg-gray-50 text-gray-700' : 'text-gray-300 cursor-not-allowed'
+                }`}
+              >
+                <span className="text-base">{l.flag}</span>
+                <span className="flex-1">{l.label}</span>
+                {!supported && <span className="text-[10px] text-gray-300">soon</span>}
+                {supported && lang === l.code && <Check size={14} className="text-primary-600" />}
+              </button>
+            )
+          })}
         </div>
       )}
     </div>

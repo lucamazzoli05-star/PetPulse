@@ -3,20 +3,22 @@ import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Search, Check } from 'lucide-react'
 import { SPECIES_LIST, BREEDS_BY_SPECIES } from '../lib/species'
 import { usePets } from '../hooks/usePets'
+import { useLang } from '../context/LanguageContext'
 import { type PetSection } from '../types'
-
-const SECTIONS: { id: PetSection; label: string; emoji: string; desc: string }[] = [
-  { id: 'vaccines', label: 'Vaccini & Scadenze', emoji: '💉', desc: 'Tieni traccia di vaccini e promemoria' },
-  { id: 'expenses', label: 'Spese', emoji: '💰', desc: 'Monitora i costi veterinari e di cura' },
-  { id: 'weight', label: 'Peso', emoji: '⚖️', desc: 'Storico del peso con grafico' },
-  { id: 'diary', label: 'Diario', emoji: '📔', desc: 'Note e appunti quotidiani' },
-]
 
 type Step = 'name' | 'species' | 'breed' | 'birth' | 'sections'
 
 export default function NewPetPage() {
   const navigate = useNavigate()
   const { addPet } = usePets()
+  const { t } = useLang()
+
+  const SECTIONS: { id: PetSection; label: string; emoji: string; desc: string }[] = [
+    { id: 'vaccines', label: t('sectionVaccinesLabel'), emoji: '💉', desc: t('sectionVaccinesDesc') },
+    { id: 'expenses', label: t('sectionExpensesLabel'), emoji: '💰', desc: t('sectionExpensesDesc') },
+    { id: 'weight', label: t('sectionWeightLabel'), emoji: '⚖️', desc: t('sectionWeightDesc') },
+    { id: 'diary', label: t('sectionDiaryLabel'), emoji: '📔', desc: t('sectionDiaryDesc') },
+  ]
 
   const [step, setStep] = useState<Step>('name')
   const [name, setName] = useState('')
@@ -70,11 +72,10 @@ export default function NewPetPage() {
             <ChevronLeft size={22} />
           </button>
           <div className="flex-1">
-            <p className="text-xs text-gray-400 font-medium">Passo {stepIdx + 1} di {steps.length}</p>
-            <h1 className="font-semibold text-gray-900">Nuovo animale</h1>
+            <p className="text-xs text-gray-400 font-medium">{t('newPetStep')} {stepIdx + 1} {t('newPetOf')} {steps.length}</p>
+            <h1 className="font-semibold text-gray-900">{t('newPetTitle')}</h1>
           </div>
         </div>
-        {/* Progress bar */}
         <div className="max-w-lg mx-auto mt-3">
           <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
             <div
@@ -90,11 +91,11 @@ export default function NewPetPage() {
         {/* Step: Name */}
         {step === 'name' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Come si chiama?</h2>
-            <p className="text-gray-500 text-sm mb-6">Inserisci il nome del tuo animale</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">{t('newPetNameQ')}</h2>
+            <p className="text-gray-500 text-sm mb-6">{t('newPetNameDesc')}</p>
             <input
               className="input text-lg"
-              placeholder="Es. Fido, Luna, Micio..."
+              placeholder={t('newPetNamePlaceholder')}
               value={name}
               onChange={e => setName(e.target.value)}
               autoFocus
@@ -104,7 +105,7 @@ export default function NewPetPage() {
               disabled={!name.trim()}
               className="btn-primary w-full mt-6 py-3 disabled:opacity-40"
             >
-              Continua
+              {t('continue')}
             </button>
           </div>
         )}
@@ -112,13 +113,13 @@ export default function NewPetPage() {
         {/* Step: Species */}
         {step === 'species' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Che tipo di animale è?</h2>
-            <p className="text-gray-500 text-sm mb-4">Seleziona la specie o scrivila</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">{t('newPetSpeciesQ')}</h2>
+            <p className="text-gray-500 text-sm mb-4">{t('newPetSpeciesDesc')}</p>
             <div className="relative mb-3">
               <Search size={16} className="absolute left-3 top-3 text-gray-400" />
               <input
                 className="input pl-9"
-                placeholder="Cerca specie..."
+                placeholder={t('newPetSpeciesSearch')}
                 value={speciesSearch}
                 onChange={e => setSpeciesSearch(e.target.value)}
               />
@@ -140,7 +141,7 @@ export default function NewPetPage() {
                   onClick={() => { setSpecies(speciesSearch); setBreed(''); next() }}
                   className="w-full text-left px-4 py-3 rounded-xl border border-dashed border-primary-300 bg-primary-50 text-primary-700 hover:bg-primary-100"
                 >
-                  Aggiungi "{speciesSearch}"
+                  {t('newPetSpeciesAdd')} "{speciesSearch}"
                 </button>
               )}
             </div>
@@ -150,15 +151,15 @@ export default function NewPetPage() {
         {/* Step: Breed */}
         {step === 'breed' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Che razza è?</h2>
-            <p className="text-gray-500 text-sm mb-4">Opzionale — puoi saltare questo passo</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">{t('newPetBreedQ')}</h2>
+            <p className="text-gray-500 text-sm mb-4">{t('newPetBreedDesc')}</p>
             {breedList.length > 0 && (
               <>
                 <div className="relative mb-3">
                   <Search size={16} className="absolute left-3 top-3 text-gray-400" />
                   <input
                     className="input pl-9"
-                    placeholder="Cerca razza..."
+                    placeholder={t('newPetBreedSearch')}
                     value={breedSearch}
                     onChange={e => setBreedSearch(e.target.value)}
                   />
@@ -180,7 +181,7 @@ export default function NewPetPage() {
                       onClick={() => { setBreed(breedSearch); next() }}
                       className="w-full text-left px-4 py-3 rounded-xl border border-dashed border-primary-300 bg-primary-50 text-primary-700 hover:bg-primary-100"
                     >
-                      Aggiungi "{breedSearch}"
+                      {t('newPetBreedAdd')} "{breedSearch}"
                     </button>
                   )}
                 </div>
@@ -189,14 +190,14 @@ export default function NewPetPage() {
             {breedList.length === 0 && (
               <input
                 className="input mb-3"
-                placeholder="Scrivi la razza..."
+                placeholder={t('newPetBreedWrite')}
                 value={breedSearch}
                 onChange={e => setBreedSearch(e.target.value)}
                 onBlur={() => setBreed(breedSearch)}
               />
             )}
             <button onClick={next} className="btn-secondary w-full py-3">
-              Salta (razza mista / non so)
+              {t('newPetBreedSkip')}
             </button>
           </div>
         )}
@@ -204,8 +205,8 @@ export default function NewPetPage() {
         {/* Step: Birth date */}
         {step === 'birth' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Data di nascita</h2>
-            <p className="text-gray-500 text-sm mb-6">Opzionale — serve per calcolare l'età</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">{t('newPetBirthQ')}</h2>
+            <p className="text-gray-500 text-sm mb-6">{t('newPetBirthDesc')}</p>
             <input
               className="input"
               type="date"
@@ -214,10 +215,10 @@ export default function NewPetPage() {
               max={new Date().toISOString().split('T')[0]}
             />
             <button onClick={next} className="btn-primary w-full mt-4 py-3">
-              Continua
+              {t('continue')}
             </button>
             <button onClick={next} className="btn-secondary w-full mt-2 py-3">
-              Salta
+              {t('skip')}
             </button>
           </div>
         )}
@@ -225,8 +226,8 @@ export default function NewPetPage() {
         {/* Step: Sections */}
         {step === 'sections' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Cosa vuoi monitorare?</h2>
-            <p className="text-gray-500 text-sm mb-6">Scegli le sezioni da attivare per {name}</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">{t('newPetSectionsQ')}</h2>
+            <p className="text-gray-500 text-sm mb-6">{t('newPetSectionsDesc')} {name}</p>
             <div className="space-y-2">
               {SECTIONS.map(s => {
                 const active = sections.includes(s.id)
@@ -257,7 +258,7 @@ export default function NewPetPage() {
               disabled={sections.length === 0 || saving}
               className="btn-primary w-full mt-6 py-3 disabled:opacity-40"
             >
-              {saving ? 'Salvataggio...' : `Crea profilo di ${name}`}
+              {saving ? t('saving') : `${t('newPetCreate')} ${name}`}
             </button>
           </div>
         )}

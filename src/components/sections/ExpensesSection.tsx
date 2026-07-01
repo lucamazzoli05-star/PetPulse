@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Plus, Trash2, TrendingUp } from 'lucide-react'
 import { useExpenses } from '../../hooks/usePetData'
 import { EXPENSE_CATEGORIES, EXPENSE_CATEGORIES_BY_SPECIES } from '../../lib/species'
+import { useLang } from '../../context/LanguageContext'
 import { type ExpenseCategory } from '../../types'
 import Modal from '../ui/Modal'
 import EmptyState from '../ui/EmptyState'
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })
+function formatDate(d: string, lang: string) {
+  return new Date(d).toLocaleDateString(lang === 'EN' ? 'en-GB' : 'it-IT', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 const CATEGORY_EMOJI: Record<ExpenseCategory, string> = {
@@ -15,9 +16,20 @@ const CATEGORY_EMOJI: Record<ExpenseCategory, string> = {
 }
 
 export default function ExpensesSection({ petId, species }: { petId: string; species: string }) {
+  const { expenses, loading, add, remove } = useExpenses(petId)
+  const { t, lang } = useLang()
   const allowedCats = EXPENSE_CATEGORIES_BY_SPECIES[species] ?? EXPENSE_CATEGORIES.map(c => c.value)
   const visibleCategories = EXPENSE_CATEGORIES.filter(c => allowedCats.includes(c.value))
-  const { expenses, loading, add, remove } = useExpenses(petId)
+
+  const catLabels: Record<ExpenseCategory, string> = {
+    vet: t('expensesCatVet'),
+    food: t('expensesCatFood'),
+    grooming: t('expensesCatGrooming'),
+    toys: t('expensesCatToys'),
+    medicine: t('expensesCatMedicine'),
+    other: t('expensesCatOther'),
+  }
+
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({ date: '', amount: '', category: 'vet' as ExpenseCategory, notes: '' })
 
@@ -31,65 +43,62 @@ export default function ExpensesSection({ petId, species }: { petId: string; spe
 
   const total = expenses.reduce((s, e) => s + Number(e.amount), 0)
 
-  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">Caricamento...</div>
+  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">{t('loading')}</div>
 
   return (
     <div>
       {expenses.length > 0 && (
         <div className="bg-primary-50 rounded-xl p-3 flex items-center justify-between mb-3">
-          <span className="text-sm text-primary-700 font-medium">Totale spese</span>
+          <span className="text-sm text-primary-700 font-medium">{t('expensesTotal')}</span>
           <span className="text-lg font-bold text-primary-700">€ {total.toFixed(2)}</span>
         </div>
       )}
       <div className="flex justify-end mb-3">
         <button onClick={() => setShowModal(true)} className="btn-primary text-sm flex items-center gap-1">
-          <Plus size={15} /> Aggiungi
+          <Plus size={15} /> {t('add')}
         </button>
       </div>
 
       {expenses.length === 0 ? (
         <EmptyState
           icon={TrendingUp}
-          title="Nessuna spesa registrata"
-          description="Tieni traccia dei costi veterinari e di cura"
-          action={{ label: 'Aggiungi spesa', onClick: () => setShowModal(true) }}
+          title={t('expensesEmpty')}
+          description={t('expensesEmptyDesc')}
+          action={{ label: t('expensesAddBtn'), onClick: () => setShowModal(true) }}
         />
       ) : (
         <div className="space-y-2">
-          {expenses.map(e => {
-            const cat = EXPENSE_CATEGORIES.find(c => c.value === e.category)
-            return (
-              <div key={e.id} className="bg-white rounded-xl border border-gray-100 p-3 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-lg flex-shrink-0">
-                  {CATEGORY_EMOJI[e.category]}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">€ {Number(e.amount).toFixed(2)}</p>
-                  <p className="text-xs text-gray-500">{cat?.label} · {formatDate(e.date)}</p>
-                  {e.notes && <p className="text-xs text-gray-400 truncate mt-0.5">{e.notes}</p>}
-                </div>
-                <button onClick={() => remove(e.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 flex-shrink-0">
-                  <Trash2 size={16} />
-                </button>
+          {expenses.map(e => (
+            <div key={e.id} className="bg-white rounded-xl border border-gray-100 p-3 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-lg flex-shrink-0">
+                {CATEGORY_EMOJI[e.category]}
               </div>
-            )
-          })}
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900">€ {Number(e.amount).toFixed(2)}</p>
+                <p className="text-xs text-gray-500">{catLabels[e.category]} · {formatDate(e.date, lang)}</p>
+                {e.notes && <p className="text-xs text-gray-400 truncate mt-0.5">{e.notes}</p>}
+              </div>
+              <button onClick={() => remove(e.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 flex-shrink-0">
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
         </div>
       )}
 
       {showModal && (
-        <Modal title="Aggiungi spesa" onClose={() => { setShowModal(false); resetForm() }}>
+        <Modal title={t('expensesModalTitle')} onClose={() => { setShowModal(false); resetForm() }}>
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('date')} *</label>
               <input className="input" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Importo (€) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('expensesAmount')}</label>
               <input className="input" type="number" min="0" step="0.01" placeholder="0.00" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('expensesCategory')}</label>
               <div className="grid grid-cols-3 gap-1.5">
                 {visibleCategories.map(c => (
                   <button
@@ -102,17 +111,17 @@ export default function ExpensesSection({ petId, species }: { petId: string; spe
                     }`}
                   >
                     <span>{CATEGORY_EMOJI[c.value as ExpenseCategory]}</span>
-                    {c.label}
+                    {catLabels[c.value as ExpenseCategory]}
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Note (opzionale)</label>
-              <input className="input" placeholder="Descrizione..." value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('notes')}</label>
+              <input className="input" placeholder={t('expensesNotesPlaceholder')} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
             </div>
             <button onClick={handleAdd} disabled={!form.date || !form.amount} className="btn-primary w-full disabled:opacity-40">
-              Salva
+              {t('save')}
             </button>
           </div>
         </Modal>
