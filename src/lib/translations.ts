@@ -171,6 +171,8 @@ export const translations = {
   diaryModalTitle: { IT: 'Nuova nota diario', EN: 'New diary entry' },
   diaryNoteLabel: { IT: 'Nota *', EN: 'Note *' },
   diaryNotePlaceholder: { IT: 'Scrivi la tua nota...', EN: 'Write your note...' },
+  diaryReminderLabel: { IT: 'Promemoria (opzionale)', EN: 'Reminder (optional)' },
+  diaryReminderDesc: { IT: 'Riceverai una notifica in questa data quando apri l\'app', EN: 'You\'ll get a notification on this date when you open the app' },
 } as const
 
 export type TranslationKey = keyof typeof translations

@@ -49,6 +49,7 @@ export interface DiaryEntry {
   pet_id: string
   date: string
   content: string
+  reminder_date: string | null
   created_at: string
 }
 

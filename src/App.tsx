@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
+import { useNotifications } from './hooks/useNotifications'
 import AuthPage from './pages/AuthPage'
 import HomePage from './pages/HomePage'
 import NewPetPage from './pages/NewPetPage'
@@ -21,6 +22,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const { user, loading } = useAuth()
+  useNotifications(user)
 
   // Intercept Supabase recovery link (type=recovery in URL hash)
   if (window.location.hash.includes('type=recovery')) {

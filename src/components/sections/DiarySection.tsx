@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Trash2, BookOpen } from 'lucide-react'
+import { Plus, Trash2, BookOpen, Bell } from 'lucide-react'
 import { useDiaryEntries } from '../../hooks/usePetData'
 import { useLang } from '../../context/LanguageContext'
 import Modal from '../ui/Modal'
@@ -13,12 +13,12 @@ export default function DiarySection({ petId }: { petId: string }) {
   const { entries, loading, add, remove } = useDiaryEntries(petId)
   const { t, lang } = useLang()
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], content: '' })
+  const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], content: '', reminder_date: '' })
 
   async function handleAdd() {
-    await add({ date: form.date, content: form.content })
+    await add({ date: form.date, content: form.content, reminder_date: form.reminder_date || null })
     setShowModal(false)
-    setForm({ date: new Date().toISOString().split('T')[0], content: '' })
+    setForm({ date: new Date().toISOString().split('T')[0], content: '', reminder_date: '' })
   }
 
   if (loading) return <div className="py-8 text-center text-gray-400 text-sm">{t('loading')}</div>
@@ -43,7 +43,14 @@ export default function DiarySection({ petId }: { petId: string }) {
           {entries.map(e => (
             <div key={e.id} className="bg-white rounded-xl border border-gray-100 p-3">
               <div className="flex items-start justify-between gap-2">
-                <p className="text-xs text-primary-600 font-medium">{formatDate(e.date, lang)}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-primary-600 font-medium">{formatDate(e.date, lang)}</p>
+                  {e.reminder_date && (
+                    <span className="flex items-center gap-0.5 text-xs text-amber-600 font-medium">
+                      <Bell size={10} /> {formatDate(e.reminder_date, lang)}
+                    </span>
+                  )}
+                </div>
                 <button onClick={() => remove(e.id)} className="p-1 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 flex-shrink-0">
                   <Trash2 size={14} />
                 </button>
@@ -71,6 +78,20 @@ export default function DiarySection({ petId }: { petId: string }) {
                 onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                 autoFocus
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <Bell size={13} className="inline mr-1 text-amber-500" />
+                {t('diaryReminderLabel')}
+              </label>
+              <input
+                className="input"
+                type="date"
+                value={form.reminder_date}
+                min={new Date().toISOString().split('T')[0]}
+                onChange={e => setForm(f => ({ ...f, reminder_date: e.target.value }))}
+              />
+              <p className="text-xs text-gray-400 mt-1">{t('diaryReminderDesc')}</p>
             </div>
             <button onClick={handleAdd} disabled={!form.content.trim()} className="btn-primary w-full disabled:opacity-40">
               {t('save')}
