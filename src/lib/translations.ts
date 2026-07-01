@@ -57,6 +57,12 @@ export const translations = {
   homeNoPetsDesc: { IT: 'Aggiungi il tuo primo animale per iniziare', EN: 'Add your first pet to get started' },
   homeAddPet: { IT: 'Aggiungi animale', EN: 'Add pet' },
   homeConfirmed: { IT: 'Registrazione confermata! Benvenuto su PetPulse.', EN: 'Registration confirmed! Welcome to PetPulse.' },
+  homeVetSoonDesc: { IT: 'La sezione veterinario sarà disponibile prossimamente.', EN: 'The vet section will be available soon.' },
+
+  // Settings
+  settingsTitle: { IT: 'Impostazioni', EN: 'Settings' },
+  settingsProfile: { IT: 'Il mio profilo', EN: 'My profile' },
+  settingsVetDesc: { IT: 'Gestione pazienti animali', EN: 'Manage animal patients' },
 
   // New Pet wizard
   newPetTitle: { IT: 'Nuovo animale', EN: 'New pet' },
