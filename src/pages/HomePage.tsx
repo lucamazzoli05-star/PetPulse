@@ -43,7 +43,6 @@ export default function HomePage() {
   const [profiles, setProfiles] = useState<string[]>(() => getProfilesFromUser(user))
   const [showConfirmed, setShowConfirmed] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  const [settingsProfiles, setSettingsProfiles] = useState<string[]>([])
 
   useEffect(() => {
     if (window.location.hash.includes('type=signup')) {
@@ -67,20 +66,7 @@ export default function HomePage() {
   }
 
   function openSettings() {
-    setSettingsProfiles([...profiles])
     setShowSettings(true)
-  }
-
-  function toggleSettingsProfile(role: string) {
-    setSettingsProfiles(prev =>
-      prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
-    )
-  }
-
-  function saveSettings() {
-    setProfiles(settingsProfiles)
-    saveProfiles(settingsProfiles)
-    setShowSettings(false)
   }
 
   return (
@@ -235,23 +221,24 @@ export default function HomePage() {
               <div className="space-y-2">
                 {/* Owner card */}
                 <button
-                  onClick={() => toggleSettingsProfile('owner')}
+                  onClick={() => {
+                    const updated = ['owner']
+                    setProfiles(updated)
+                    saveProfiles(updated)
+                    setShowSettings(false)
+                  }}
                   className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
-                    settingsProfiles.includes('owner') ? 'border-primary-500 bg-primary-50' : 'border-gray-100 bg-white hover:bg-gray-50'
+                    isOwner ? 'border-primary-500 bg-primary-50' : 'border-gray-100 bg-white hover:bg-gray-50'
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#E1F5EE' }}>
                     <HeartPulse size={18} style={{ color: '#0F6E56' }} />
                   </div>
                   <div className="flex-1">
-                    <p className={`font-medium text-sm ${settingsProfiles.includes('owner') ? 'text-primary-700' : 'text-gray-800'}`}>{t('homeMyPets')}</p>
+                    <p className={`font-medium text-sm ${isOwner ? 'text-primary-700' : 'text-gray-800'}`}>{t('homeMyPets')}</p>
                     <p className="text-xs text-gray-400">{t('homeOwner')}</p>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                    settingsProfiles.includes('owner') ? 'border-primary-500 bg-primary-500' : 'border-gray-300'
-                  }`}>
-                    {settingsProfiles.includes('owner') && <Check size={12} className="text-white" />}
-                  </div>
+                  {isOwner && <Check size={18} className="text-primary-500 flex-shrink-0" />}
                 </button>
 
                 {/* Vet card — coming soon */}
@@ -268,14 +255,6 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-
-              <button
-                onClick={saveSettings}
-                disabled={settingsProfiles.length === 0}
-                className="btn-primary w-full mt-5 disabled:opacity-40"
-              >
-                {t('save')}
-              </button>
             </div>
           </div>
         </div>
