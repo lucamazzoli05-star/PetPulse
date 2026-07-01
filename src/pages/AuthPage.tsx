@@ -37,7 +37,7 @@ export default function AuthPage() {
       else setSuccess(t('authSignupSuccess'))
     } else {
       const { error } = await resetPassword(email)
-      if (error) setError(t('authForgotError'))
+      if (error) setError(error.message)
       else setSuccess(t('authForgotSuccess'))
     }
     setLoading(false)
