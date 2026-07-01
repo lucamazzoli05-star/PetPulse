@@ -77,8 +77,8 @@ export default function HomePage() {
       )}
 
       <div className="max-w-lg mx-auto px-4 pt-6">
-        <h1 className="text-[22px] font-medium text-gray-900">{t('homeGreeting')} {userName},</h1>
-        <p className="text-[15px] text-gray-500 mt-0.5 mb-5">{t('homeSubtitle')}</p>
+        <h1 className={`text-[22px] font-medium text-gray-900 ${profile ? 'mb-5' : 'mb-0'}`}>{t('homeGreeting')} {userName} 👋</h1>
+        {!profile && <p className="text-[15px] text-gray-500 mt-0.5 mb-5">{t('homeSubtitle')}</p>}
 
         {/* Scelta profilo — mostrata solo se non ancora scelta */}
         {!profile && <div className="grid grid-cols-2 gap-3">
