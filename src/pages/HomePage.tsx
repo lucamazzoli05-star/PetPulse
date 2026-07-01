@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { HeartPulse, Plus, ChevronRight, Stethoscope, Info, LogOut, TriangleAlert } from 'lucide-react'
 import { usePets } from '../hooks/usePets'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import { useLang } from '../context/LanguageContext'
 import Spinner from '../components/ui/Spinner'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
@@ -24,10 +25,11 @@ export default function HomePage() {
   const { pets, loading } = usePets()
   const { user, signOut } = useAuth()
   const { t, lang } = useLang()
+  const profileFromAccount = user?.user_metadata?.profile === 'owner'
   const [profile, setProfile] = useState<'owner' | null>(() =>
-    localStorage.getItem('selectedProfile') === 'owner' ? 'owner' : null
+    profileFromAccount || localStorage.getItem('selectedProfile') === 'owner' ? 'owner' : null
   )
-  const [infoSeen, setInfoSeen] = useState(() => localStorage.getItem('profileInfoSeen') === '1')
+  const [infoSeen, setInfoSeen] = useState(() => profileFromAccount || localStorage.getItem('profileInfoSeen') === '1')
   const [showConfirmed, setShowConfirmed] = useState(false)
 
   useEffect(() => {
@@ -83,7 +85,13 @@ export default function HomePage() {
         {/* Scelta profilo — mostrata solo se non ancora scelta */}
         {!profile && <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => { setProfile('owner'); setInfoSeen(true); localStorage.setItem('profileInfoSeen', '1'); localStorage.setItem('selectedProfile', 'owner') }}
+            onClick={() => {
+              setProfile('owner')
+              setInfoSeen(true)
+              localStorage.setItem('profileInfoSeen', '1')
+              localStorage.setItem('selectedProfile', 'owner')
+              supabase.auth.updateUser({ data: { profile: 'owner' } })
+            }}
             className={`text-left p-4 rounded-2xl border bg-white transition-all ${
               profile === 'owner' ? 'border-primary-400 ring-2 ring-primary-100' : 'border-gray-100'
             }`}
