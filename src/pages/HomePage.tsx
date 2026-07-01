@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PawPrint, Plus, ChevronRight, Stethoscope, Info, LogOut, TriangleAlert } from 'lucide-react'
 import { usePets } from '../hooks/usePets'
 import { useAuth } from '../context/AuthContext'
 import Spinner from '../components/ui/Spinner'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
+import { SPECIES_EMOJI } from '../lib/species'
 
 function petAge(birthDate: string | null): string {
   if (!birthDate) return ''
@@ -21,6 +22,15 @@ export default function HomePage() {
   const { pets, loading } = usePets()
   const { user, signOut } = useAuth()
   const [profile, setProfile] = useState<'owner' | null>(null)
+  const [infoSeen, setInfoSeen] = useState(false)
+  const [showConfirmed, setShowConfirmed] = useState(false)
+
+  useEffect(() => {
+    if (window.location.hash.includes('type=signup')) {
+      setShowConfirmed(true)
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+  }, [])
 
   const userName = (user?.user_metadata?.full_name as string | undefined)?.split(' ')[0]
     ?? user?.email?.split('@')[0]
@@ -52,6 +62,15 @@ export default function HomePage() {
         </div>
       </div>
 
+      {showConfirmed && (
+        <div className="bg-green-50 border-b border-green-200 px-4 py-3">
+          <div className="max-w-lg mx-auto flex items-center justify-between">
+            <p className="text-sm text-green-700 font-medium">✅ Registrazione confermata! Benvenuto su PetPulse.</p>
+            <button onClick={() => setShowConfirmed(false)} className="text-green-500 text-lg leading-none ml-3">×</button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-lg mx-auto px-4 pt-6">
         <h1 className="text-[22px] font-medium text-gray-900">Ciao {userName},</h1>
         <p className="text-[15px] text-gray-500 mt-0.5 mb-5">come vuoi usare l'app?</p>
@@ -59,7 +78,7 @@ export default function HomePage() {
         {/* Scelta profilo */}
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => setProfile('owner')}
+            onClick={() => { setProfile('owner'); setInfoSeen(true) }}
             className={`text-left p-4 rounded-2xl border bg-white transition-all ${
               profile === 'owner' ? 'border-primary-400 ring-2 ring-primary-100' : 'border-gray-100'
             }`}
@@ -86,13 +105,15 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Nota informativa */}
-        <div className="flex items-start gap-2 bg-white border border-gray-100 rounded-xl p-3 mt-4">
-          <Info size={15} className="text-gray-400 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-gray-500">
-            Tocca un riquadro per iniziare. Puoi cambiare profilo in qualsiasi momento.
-          </p>
-        </div>
+        {/* Nota informativa — mostrata solo finché non si seleziona un profilo */}
+        {!infoSeen && (
+          <div className="flex items-start gap-2 bg-white border border-gray-100 rounded-xl p-3 mt-4">
+            <Info size={15} className="text-gray-400 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-gray-500">
+              Tocca un riquadro per iniziare. Puoi cambiare profilo in qualsiasi momento.
+            </p>
+          </div>
+        )}
 
         {/* Lista animali (mostrata quando il profilo "owner" è selezionato) */}
         {profile === 'owner' && (
@@ -134,7 +155,7 @@ export default function HomePage() {
                     <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
                       {pet.photo_url
                         ? <img src={pet.photo_url} alt={pet.name} className="w-full h-full object-cover" />
-                        : <span>{pet.species === 'Gatto' ? '🐱' : pet.species === 'Cane' ? '🐶' : '🐾'}</span>
+                        : <span>{SPECIES_EMOJI[pet.species] ?? '🐾'}</span>
                       }
                     </div>
                     <div className="flex-1 min-w-0">
