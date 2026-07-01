@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { HeartPulse, PawPrint, Plus, ChevronRight, Stethoscope, Info, LogOut, TriangleAlert } from 'lucide-react'
+import { PawPrint, Plus, ChevronRight, Stethoscope, Info, LogOut, TriangleAlert } from 'lucide-react'
 import { usePets } from '../hooks/usePets'
 import { useAuth } from '../context/AuthContext'
 import Spinner from '../components/ui/Spinner'
