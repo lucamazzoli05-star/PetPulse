@@ -124,13 +124,16 @@ export default function HomePage() {
                 <p className="text-xs text-gray-400 mt-0.5">{t('homeOwner')}</p>
               </button>
 
-              <div className="text-left p-4 rounded-2xl border border-gray-100 bg-white opacity-55 cursor-not-allowed">
+              <button
+                onClick={() => chooseProfile('vet')}
+                className="text-left p-4 rounded-2xl border border-gray-100 bg-white hover:border-blue-400 transition-all"
+              >
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: '#E6F1FB' }}>
                   <Stethoscope size={20} style={{ color: '#185FA5' }} />
                 </div>
                 <p className="font-semibold text-gray-900 text-sm">{t('homeVet')}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{t('homeVetSoon')}</p>
-              </div>
+                <p className="text-xs text-gray-400 mt-0.5">{t('settingsVetDesc')}</p>
+              </button>
             </div>
           </>
         )}
@@ -241,19 +244,27 @@ export default function HomePage() {
                   {isOwner && <Check size={18} className="text-primary-500 flex-shrink-0" />}
                 </button>
 
-                {/* Vet card — coming soon */}
-                <div className="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-gray-100 bg-white opacity-50 cursor-not-allowed">
+                {/* Vet card */}
+                <button
+                  onClick={() => {
+                    const updated = ['vet']
+                    setProfiles(updated)
+                    saveProfiles(updated)
+                    setShowSettings(false)
+                  }}
+                  className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
+                    isVet ? 'border-blue-500 bg-blue-50' : 'border-gray-100 bg-white hover:bg-gray-50'
+                  }`}
+                >
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#E6F1FB' }}>
                     <Stethoscope size={18} style={{ color: '#185FA5' }} />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-sm text-gray-800">{t('homeVet')}</p>
-                      <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">{t('homeVetSoon')}</span>
-                    </div>
+                    <p className={`font-medium text-sm ${isVet ? 'text-blue-700' : 'text-gray-800'}`}>{t('homeVet')}</p>
                     <p className="text-xs text-gray-400">{t('settingsVetDesc')}</p>
                   </div>
-                </div>
+                  {isVet && <Check size={18} className="text-blue-500 flex-shrink-0" />}
+                </button>
               </div>
             </div>
           </div>

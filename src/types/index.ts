@@ -66,6 +66,57 @@ export interface VetVisit {
   created_at: string
 }
 
+export interface VetClient {
+  id: string
+  vet_user_id: string
+  name: string
+  surname: string
+  address: string | null
+  phone: string | null
+  email: string | null
+  codice_fiscale: string | null
+  notes: string | null
+  created_at: string
+}
+
+export interface VetAnimal {
+  id: string
+  client_id: string
+  vet_user_id: string
+  name: string
+  species: string
+  breed: string | null
+  birth_date: string | null
+  photo_url: string | null
+  allergies: string | null
+  chronic_conditions: string | null
+  notes: string | null
+  created_at: string
+}
+
+export interface VetWeightEntry {
+  id: string
+  animal_id: string
+  vet_user_id: string
+  date: string
+  weight_kg: number
+  notes: string | null
+  created_at: string
+}
+
+export interface VetRecord {
+  id: string
+  animal_id: string
+  vet_user_id: string
+  date: string
+  reason: string
+  medicines: string | null
+  next_visit_date: string | null
+  report_url: string | null
+  notes: string | null
+  created_at: string
+}
+
 export interface User {
   id: string
   email: string

@@ -7,6 +7,9 @@ import HomePage from './pages/HomePage'
 import NewPetPage from './pages/NewPetPage'
 import PetPage from './pages/PetPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import VetDashboardPage from './pages/vet/VetDashboardPage'
+import VetClientPage from './pages/vet/VetClientPage'
+import VetAnimalPage from './pages/vet/VetAnimalPage'
 import Spinner from './components/ui/Spinner'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -40,6 +43,9 @@ function AppRoutes() {
       <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
       <Route path="/new-pet" element={<ProtectedRoute><NewPetPage /></ProtectedRoute>} />
       <Route path="/pet/:id" element={<ProtectedRoute><PetPage /></ProtectedRoute>} />
+      <Route path="/vet" element={<ProtectedRoute><VetDashboardPage /></ProtectedRoute>} />
+      <Route path="/vet/client/:clientId" element={<ProtectedRoute><VetClientPage /></ProtectedRoute>} />
+      <Route path="/vet/client/:clientId/animal/:animalId" element={<ProtectedRoute><VetAnimalPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
