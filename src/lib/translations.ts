@@ -205,6 +205,7 @@ export const translations = {
   visitsNextVisit: { IT: 'Prossima visita', EN: 'Next visit' },
   visitsToday: { IT: 'oggi!', EN: 'today!' },
   visitsDaysLeft: { IT: 'giorni', EN: 'days' },
+  visitsEditTitle: { IT: 'Modifica visita', EN: 'Edit visit' },
 } as const
 
 export type TranslationKey = keyof typeof translations

@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Plus, Trash2, Stethoscope, Bell, FileText, Upload, X } from 'lucide-react'
+import { Plus, Trash2, Stethoscope, Bell, FileText, Upload, X, Pencil } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useVetVisits } from '../../hooks/usePetData'
 import { useLang } from '../../context/LanguageContext'
+import { type VetVisit } from '../../types'
 import Modal from '../ui/Modal'
 import EmptyState from '../ui/EmptyState'
 
@@ -25,13 +26,46 @@ const emptyForm = {
   report_url: '',
 }
 
+type FormState = typeof emptyForm
+
+function visitToForm(v: VetVisit): FormState {
+  return {
+    date: v.date,
+    reason: v.reason,
+    vet_name: v.vet_name ?? '',
+    medicines: v.medicines ?? '',
+    next_visit_date: v.next_visit_date ?? '',
+    notes: v.notes ?? '',
+    report_url: v.report_url ?? '',
+  }
+}
+
 export default function VetVisitsSection({ petId }: { petId: string }) {
-  const { visits, loading, add, remove } = useVetVisits(petId)
+  const { visits, loading, add, update, remove } = useVetVisits(petId)
   const { t, lang } = useLang()
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState(emptyForm)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [form, setForm] = useState<FormState>(emptyForm)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  function openNew() {
+    setEditingId(null)
+    setForm(emptyForm)
+    setShowModal(true)
+  }
+
+  function openEdit(v: VetVisit) {
+    setEditingId(v.id)
+    setForm(visitToForm(v))
+    setShowModal(true)
+  }
+
+  function closeModal() {
+    setShowModal(false)
+    setEditingId(null)
+    setForm(emptyForm)
+  }
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -46,9 +80,9 @@ export default function VetVisitsSection({ petId }: { petId: string }) {
     setUploading(false)
   }
 
-  async function handleAdd() {
+  async function handleSave() {
     setSaving(true)
-    await add({
+    const payload = {
       date: form.date,
       reason: form.reason,
       vet_name: form.vet_name || null,
@@ -56,9 +90,13 @@ export default function VetVisitsSection({ petId }: { petId: string }) {
       next_visit_date: form.next_visit_date || null,
       report_url: form.report_url || null,
       notes: form.notes || null,
-    })
-    setShowModal(false)
-    setForm(emptyForm)
+    }
+    if (editingId) {
+      await update(editingId, payload)
+    } else {
+      await add(payload)
+    }
+    closeModal()
     setSaving(false)
   }
 
@@ -67,7 +105,7 @@ export default function VetVisitsSection({ petId }: { petId: string }) {
   return (
     <div>
       <div className="flex justify-end mb-3">
-        <button onClick={() => setShowModal(true)} className="btn-primary text-sm flex items-center gap-1">
+        <button onClick={openNew} className="btn-primary text-sm flex items-center gap-1">
           <Plus size={15} /> {t('add')}
         </button>
       </div>
@@ -77,7 +115,7 @@ export default function VetVisitsSection({ petId }: { petId: string }) {
           icon={Stethoscope}
           title={t('visitsEmpty')}
           description={t('visitsEmptyDesc')}
-          action={{ label: t('visitsAddBtn'), onClick: () => setShowModal(true) }}
+          action={{ label: t('visitsAddBtn'), onClick: openNew }}
         />
       ) : (
         <div className="space-y-3">
@@ -92,9 +130,14 @@ export default function VetVisitsSection({ petId }: { petId: string }) {
                     <p className="text-xs text-primary-600 font-medium mt-0.5">{formatDate(v.date, lang)}</p>
                     {v.vet_name && <p className="text-xs text-gray-500 mt-0.5">🩺 {v.vet_name}</p>}
                   </div>
-                  <button onClick={() => remove(v.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 flex-shrink-0">
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button onClick={() => openEdit(v)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary-500">
+                      <Pencil size={15} />
+                    </button>
+                    <button onClick={() => remove(v.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </div>
 
                 {v.medicines && (
@@ -119,12 +162,8 @@ export default function VetVisitsSection({ petId }: { petId: string }) {
                 )}
 
                 {v.report_url && (
-                  <a
-                    href={v.report_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs text-primary-600 font-medium mt-2 hover:underline"
-                  >
+                  <a href={v.report_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs text-primary-600 font-medium mt-2 hover:underline">
                     <FileText size={12} /> {t('visitsViewReport')}
                   </a>
                 )}
@@ -135,7 +174,7 @@ export default function VetVisitsSection({ petId }: { petId: string }) {
       )}
 
       {showModal && (
-        <Modal title={t('visitsModalTitle')} onClose={() => { setShowModal(false); setForm(emptyForm) }}>
+        <Modal title={editingId ? t('visitsEditTitle') : t('visitsModalTitle')} onClose={closeModal}>
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('visitsDate')} *</label>
@@ -183,7 +222,7 @@ export default function VetVisitsSection({ petId }: { petId: string }) {
               <input className="input" type="date" value={form.next_visit_date} min={new Date().toISOString().split('T')[0]} onChange={e => setForm(f => ({ ...f, next_visit_date: e.target.value }))} />
             </div>
             <button
-              onClick={handleAdd}
+              onClick={handleSave}
               disabled={!form.date || !form.reason || saving || uploading}
               className="btn-primary w-full disabled:opacity-40"
             >

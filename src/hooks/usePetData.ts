@@ -113,11 +113,17 @@ export function useVetVisits(petId: string) {
     return { data, error }
   }
 
+  async function update(id: string, v: Partial<Omit<VetVisit, 'id' | 'pet_id' | 'created_at'>>) {
+    const { data, error } = await supabase.from('vet_visits').update(v).eq('id', id).select().single()
+    if (!error && data) setVisits(prev => prev.map(visit => visit.id === id ? data : visit))
+    return { data, error }
+  }
+
   async function remove(id: string) {
     const { error } = await supabase.from('vet_visits').delete().eq('id', id)
     if (!error) setVisits(prev => prev.filter(v => v.id !== id))
     return { error }
   }
 
-  return { visits, loading, add, remove }
+  return { visits, loading, add, update, remove }
 }
