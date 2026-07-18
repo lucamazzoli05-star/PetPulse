@@ -18,6 +18,7 @@ export default function NewPetPage() {
     { id: 'expenses', label: t('sectionExpensesLabel'), emoji: '💰', desc: t('sectionExpensesDesc') },
     { id: 'weight', label: t('sectionWeightLabel'), emoji: '⚖️', desc: t('sectionWeightDesc') },
     { id: 'diary', label: t('sectionDiaryLabel'), emoji: '📔', desc: t('sectionDiaryDesc') },
+    { id: 'vet_visits', label: t('sectionVetVisitsLabel'), emoji: '🩺', desc: t('sectionVetVisitsDesc') },
   ]
 
   const [step, setStep] = useState<Step>('name')

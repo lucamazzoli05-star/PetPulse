@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { type Vaccine, type Expense, type WeightEntry, type DiaryEntry } from '../types'
+import { type Vaccine, type Expense, type WeightEntry, type DiaryEntry, type VetVisit } from '../types'
 
 export function useVaccines(petId: string) {
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
@@ -96,4 +96,28 @@ export function useDiaryEntries(petId: string) {
   }
 
   return { entries, loading, add, remove }
+}
+
+export function useVetVisits(petId: string) {
+  const [visits, setVisits] = useState<VetVisit[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase.from('vet_visits').select('*').eq('pet_id', petId).order('date', { ascending: false })
+      .then(({ data }) => { setVisits(data ?? []); setLoading(false) })
+  }, [petId])
+
+  async function add(v: Omit<VetVisit, 'id' | 'pet_id' | 'created_at'>) {
+    const { data, error } = await supabase.from('vet_visits').insert({ ...v, pet_id: petId }).select().single()
+    if (!error && data) setVisits(prev => [data, ...prev])
+    return { data, error }
+  }
+
+  async function remove(id: string) {
+    const { error } = await supabase.from('vet_visits').delete().eq('id', id)
+    if (!error) setVisits(prev => prev.filter(v => v.id !== id))
+    return { error }
+  }
+
+  return { visits, loading, add, remove }
 }

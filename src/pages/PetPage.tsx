@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft, Plus, Trash2, MapPin } from 'lucide-react'
+import { ChevronLeft, Plus, Trash2, MapPin, Camera } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { type Pet, type PetSection } from '../types'
 import { usePets } from '../hooks/usePets'
 import { useLang } from '../context/LanguageContext'
 import { type TranslationKey } from '../lib/translations'
-import { translateSpecies } from '../lib/species'
+import { translateSpecies, SPECIES_EMOJI } from '../lib/species'
 import VaccinesSection from '../components/sections/VaccinesSection'
 import ExpensesSection from '../components/sections/ExpensesSection'
 import WeightSection from '../components/sections/WeightSection'
 import DiarySection from '../components/sections/DiarySection'
+import VetVisitsSection from '../components/sections/VetVisitsSection'
 import Spinner from '../components/ui/Spinner'
 
 function petAge(birthDate: string | null, t: (k: TranslationKey) => string): string {
@@ -32,12 +33,15 @@ export default function PetPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<PetSection | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const photoInputRef = useRef<HTMLInputElement>(null)
 
   const SECTIONS_META: { id: PetSection; label: string; emoji: string }[] = [
     { id: 'vaccines', label: t('sectionVaccinesLabel'), emoji: '💉' },
     { id: 'expenses', label: t('sectionExpensesLabel'), emoji: '💰' },
     { id: 'weight', label: t('sectionWeightLabel'), emoji: '⚖️' },
     { id: 'diary', label: t('sectionDiaryLabel'), emoji: '📔' },
+    { id: 'vet_visits', label: t('sectionVetVisitsLabel'), emoji: '🩺' },
   ]
 
   useEffect(() => {
@@ -64,6 +68,21 @@ export default function PetPage() {
     navigate('/')
   }
 
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !pet) return
+    setUploadingPhoto(true)
+    const path = `photos/${pet.id}/${Date.now()}_${file.name}`
+    const { data, error } = await supabase.storage.from('petpulse-files').upload(path, file, { upsert: true })
+    if (!error && data) {
+      const { data: urlData } = supabase.storage.from('petpulse-files').getPublicUrl(data.path)
+      const photoUrl = urlData.publicUrl
+      await supabase.from('pets').update({ photo_url: photoUrl }).eq('id', pet.id)
+      setPet({ ...pet, photo_url: photoUrl })
+    }
+    setUploadingPhoto(false)
+  }
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <Spinner size="lg" />
@@ -87,6 +106,30 @@ export default function PetPage() {
           <button onClick={() => navigate('/')} className="p-1 rounded-lg hover:bg-gray-100">
             <ChevronLeft size={22} />
           </button>
+
+          {/* Foto animale cliccabile */}
+          <div className="relative flex-shrink-0">
+            <div
+              className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-2xl overflow-hidden cursor-pointer"
+              onClick={() => photoInputRef.current?.click()}
+            >
+              {uploadingPhoto ? (
+                <Spinner size="sm" />
+              ) : pet.photo_url ? (
+                <img src={pet.photo_url} alt={pet.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>{SPECIES_EMOJI[pet.species] ?? '🐾'}</span>
+              )}
+            </div>
+            <button
+              onClick={() => photoInputRef.current?.click()}
+              className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center"
+            >
+              <Camera size={10} className="text-white" />
+            </button>
+            <input ref={photoInputRef} type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+          </div>
+
           <div className="flex-1 min-w-0">
             <h1 className="font-bold text-gray-900 text-lg truncate">{pet.name}</h1>
             <p className="text-xs text-gray-500 truncate">
@@ -133,6 +176,7 @@ export default function PetPage() {
         {activeTab === 'expenses' && <ExpensesSection petId={pet.id} species={pet.species} />}
         {activeTab === 'weight' && <WeightSection petId={pet.id} />}
         {activeTab === 'diary' && <DiarySection petId={pet.id} />}
+        {activeTab === 'vet_visits' && <VetVisitsSection petId={pet.id} />}
 
         {activeSections.length === 0 && (
           <div className="text-center py-12">

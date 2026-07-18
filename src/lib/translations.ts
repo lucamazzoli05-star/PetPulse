@@ -179,6 +179,32 @@ export const translations = {
   diaryNotePlaceholder: { IT: 'Scrivi la tua nota...', EN: 'Write your note...' },
   diaryReminderLabel: { IT: 'Promemoria (opzionale)', EN: 'Reminder (optional)' },
   diaryReminderDesc: { IT: 'Riceverai una notifica in questa data quando apri l\'app', EN: 'You\'ll get a notification on this date when you open the app' },
+
+  // Vet visits section
+  sectionVetVisitsLabel: { IT: 'Visite', EN: 'Vet Visits' },
+  sectionVetVisitsDesc: { IT: 'Storico visite veterinarie e referti', EN: 'Vet visit history and reports' },
+  visitsEmpty: { IT: 'Nessuna visita registrata', EN: 'No visits recorded' },
+  visitsEmptyDesc: { IT: 'Aggiungi la prima visita veterinaria', EN: 'Add the first vet visit' },
+  visitsAddBtn: { IT: 'Aggiungi visita', EN: 'Add visit' },
+  visitsModalTitle: { IT: 'Nuova visita veterinaria', EN: 'New vet visit' },
+  visitsDate: { IT: 'Data visita', EN: 'Visit date' },
+  visitsReason: { IT: 'Motivo', EN: 'Reason' },
+  visitsReasonPlaceholder: { IT: 'Es. Controllo annuale, vomito, ecc.', EN: 'E.g. Annual checkup, vomiting, etc.' },
+  visitsVetName: { IT: 'Nome veterinario', EN: 'Vet name' },
+  visitsVetNamePlaceholder: { IT: 'Es. Dott. Rossi', EN: 'E.g. Dr. Smith' },
+  visitsMedicines: { IT: 'Farmaci prescritti', EN: 'Prescribed medicines' },
+  visitsMedicinesPlaceholder: { IT: 'Elenca i farmaci prescritti...', EN: 'List the prescribed medicines...' },
+  visitsNotes: { IT: 'Note / Blocco appunti', EN: 'Notes / Notepad' },
+  visitsNotesPlaceholder: { IT: 'Aggiungi informazioni aggiuntive, osservazioni...', EN: 'Add additional info, observations...' },
+  visitsReport: { IT: 'Referto (PDF o foto)', EN: 'Report (PDF or photo)' },
+  visitsUploadReport: { IT: 'Carica referto', EN: 'Upload report' },
+  visitsReportUploaded: { IT: 'Referto caricato', EN: 'Report uploaded' },
+  visitsUploading: { IT: 'Caricamento...', EN: 'Uploading...' },
+  visitsViewReport: { IT: 'Visualizza referto', EN: 'View report' },
+  visitsNextVisitLabel: { IT: 'Prossima visita (promemoria)', EN: 'Next visit (reminder)' },
+  visitsNextVisit: { IT: 'Prossima visita', EN: 'Next visit' },
+  visitsToday: { IT: 'oggi!', EN: 'today!' },
+  visitsDaysLeft: { IT: 'giorni', EN: 'days' },
 } as const
 
 export type TranslationKey = keyof typeof translations

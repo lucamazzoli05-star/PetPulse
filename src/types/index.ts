@@ -10,7 +10,7 @@ export interface Pet {
   created_at: string
 }
 
-export type PetSection = 'vaccines' | 'expenses' | 'weight' | 'diary'
+export type PetSection = 'vaccines' | 'expenses' | 'weight' | 'diary' | 'vet_visits'
 
 export interface Vaccine {
   id: string
@@ -50,6 +50,19 @@ export interface DiaryEntry {
   date: string
   content: string
   reminder_date: string | null
+  created_at: string
+}
+
+export interface VetVisit {
+  id: string
+  pet_id: string
+  date: string
+  reason: string
+  vet_name: string | null
+  medicines: string | null
+  next_visit_date: string | null
+  report_url: string | null
+  notes: string | null
   created_at: string
 }
 
