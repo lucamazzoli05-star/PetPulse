@@ -191,7 +191,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Sezione veterinario (coming soon) */}
+        {/* Sezione veterinario */}
         {isVet && (
           <div className="card mt-4">
             <div className="flex items-center gap-2 mb-3">
@@ -200,8 +200,9 @@ export default function HomePage() {
             </div>
             <div className="text-center py-8">
               <div className="text-4xl mb-2">🩺</div>
-              <p className="text-gray-600 font-medium">{t('homeVetSoon')}</p>
-              <p className="text-sm text-gray-400 mt-1">{t('homeVetSoonDesc')}</p>
+              <p className="text-gray-600 font-medium">{t('vetDashTitle')}</p>
+              <p className="text-sm text-gray-400 mt-1 mb-4">{t('settingsVetDesc')}</p>
+              <button onClick={() => navigate('/vet')} className="btn-primary text-sm">{t('vetAddClient')}</button>
             </div>
           </div>
         )}
